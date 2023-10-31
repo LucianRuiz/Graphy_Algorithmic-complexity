@@ -9,7 +9,7 @@ conexiones_df = pd.read_csv('conexiones.csv')
 G = nx.Graph()
 
 # Limita el número de filas procesadas
-num_filas = 10  # Limite de filas a procesasr
+num_filas = 20  # Limite de filas a procesasr
 
 # Crea una función para calcular el peso basado en la igualdad de valores de atributos
 def calculate_weight(node1, node2):
@@ -19,11 +19,11 @@ def calculate_weight(node1, node2):
     # Calcula la cantidad de valores iguales entre los conjuntos de atributos
     common_values = len(attributes1.intersection(attributes2))
 
-    return common_values
+    return common_values + 1 
 
 for idx, row in conexiones_df.iterrows():
-    if idx >= num_filas:
-        break
+    #if idx >= num_filas:
+    #    break
     
     list_products_str = row['list_products']
     
@@ -42,12 +42,46 @@ for idx, row in conexiones_df.iterrows():
             weight = calculate_weight(source, target)
             G.add_edge(source, target, weight=weight)
 
+
+
+
+def new_Graph(first_node):
+    x = list(G[first_node].items())
+    graph = []
+    for i in x:
+        edge = (first_node,i[0],i[1].get("weight"))
+        graph.append(edge)
+    for i in x:
+        newfirst_node = i[0]
+        newlist = list(G[newfirst_node].items())
+        for j in newlist:
+            edge = (newfirst_node,j[0],j[1].get("weight"))
+            graph.append(edge)    
+    return graph
+
+nuevo = nx.Graph()
+
+a = new_Graph(168)
+
+for i in a:
+    node1, node2, weight = i
+    nuevo.add_edge(node1, node2, weight=weight)
+
+
 # Dibuja el grafo con los pesos en las aristas
+#plt.figure(figsize=(10, 10))
+#pos = nx.spring_layout(G)  # Layout para la visualización
+#edge_labels = {(u, v): d['weight'] for u, v, d in G.edges(data=True)}
+#nx.draw(G, pos, with_labels=True, node_size=300, node_color='skyblue', font_size=10, font_color='black')
+#nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=8)
+#plt.title("Grafo de Conexiones de Productos con Pesos (Contando Valores Iguales de Atributos)")
+#plt.show()
+
+
 plt.figure(figsize=(10, 10))
-pos = nx.spring_layout(G)  # Layout para la visualización
-edge_labels = {(u, v): d['weight'] for u, v, d in G.edges(data=True)}
-nx.draw(G, pos, with_labels=True, node_size=300, node_color='skyblue', font_size=10, font_color='black')
-nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=8)
+pos = nx.spring_layout(nuevo)  # Layout para la visualización
+edge_labels = {(u, v): d['weight'] for u, v, d in nuevo.edges(data=True)}
+nx.draw(nuevo, pos, with_labels=True, node_size=300, node_color='skyblue', font_size=10, font_color='black')
+nx.draw_networkx_edge_labels(nuevo, pos, edge_labels=edge_labels, font_size=8)
 plt.title("Grafo de Conexiones de Productos con Pesos (Contando Valores Iguales de Atributos)")
 plt.show()
-
