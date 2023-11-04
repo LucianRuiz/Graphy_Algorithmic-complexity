@@ -44,6 +44,10 @@ for idx, row in conexiones_df.iterrows():
 
 
 
+#Delimitacion el grafo y generacion del grafo delimitado
+
+start_node = 1110
+
 
 def new_Graph(first_node):
     x = list(G[first_node].items())
@@ -61,16 +65,60 @@ def new_Graph(first_node):
 
 nuevo = nx.Graph()
 
-a = new_Graph(168)
+delimitado = new_Graph(start_node)
 
-for i in a:
+for i in delimitado:
     node1, node2, weight = i
     nuevo.add_edge(node1, node2, weight=weight)
 
 
+
+
+#Aplicacion del algoritmo 
+
+
+
+
+def Prim(G, start_node):
+    mst = nx.Graph()
+    visited = set([start_node])
+    edges = []
+    selected = []
+
+    while len(visited) < len(G.nodes):
+        min_edge = None
+
+        for node in visited:
+            for neighbor, data in G[node].items():
+                if neighbor not in visited:
+                    edges.append((node, neighbor, data['weight']))
+
+        edges.sort(key=lambda x: x[2],reverse=True)
+        for edge in edges:
+            node1, node2, weight = edge
+            if node1 in visited and node2 not in visited:
+                min_edge = edge
+                break
+
+        if min_edge:
+            node1, node2, weight = min_edge
+            visited.add(node2)
+            mst.add_edge(node1, node2, weight=weight)
+            selected.append((node2,weight))
+        edges = []
+
+    return mst, selected
+
+
+mst, seleccionados = Prim(nuevo, start_node)
+
+
+print(seleccionados)
+
+
 # Dibuja el grafo con los pesos en las aristas
 #plt.figure(figsize=(10, 10))
-#pos = nx.spring_layout(G)  # Layout para la visualización
+#pos = nx.shell_layout(G)  # Layout para la visualización
 #edge_labels = {(u, v): d['weight'] for u, v, d in G.edges(data=True)}
 #nx.draw(G, pos, with_labels=True, node_size=300, node_color='skyblue', font_size=10, font_color='black')
 #nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=8)
@@ -83,5 +131,13 @@ pos = nx.spring_layout(nuevo)  # Layout para la visualización
 edge_labels = {(u, v): d['weight'] for u, v, d in nuevo.edges(data=True)}
 nx.draw(nuevo, pos, with_labels=True, node_size=300, node_color='skyblue', font_size=10, font_color='black')
 nx.draw_networkx_edge_labels(nuevo, pos, edge_labels=edge_labels, font_size=8)
+plt.title("Grafo de Conexiones de Productos con Pesos (Contando Valores Iguales de Atributos)")
+plt.show()
+
+plt.figure(figsize=(10, 10))
+pos = nx.spring_layout(mst)  # Layout para la visualización
+edge_labels = {(u, v): d['weight'] for u, v, d in mst.edges(data=True)}
+nx.draw(mst, pos, with_labels=True, node_size=300, node_color='skyblue', font_size=10, font_color='black')
+nx.draw_networkx_edge_labels(mst, pos, edge_labels=edge_labels, font_size=8)
 plt.title("Grafo de Conexiones de Productos con Pesos (Contando Valores Iguales de Atributos)")
 plt.show()
