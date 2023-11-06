@@ -46,7 +46,7 @@ for idx, row in conexiones_df.iterrows():
 
 #Delimitacion el grafo y generacion del grafo delimitado
 
-start_node = 1110
+start_node = 887
 
 
 def new_Graph(first_node):
@@ -85,6 +85,7 @@ def Prim(G, start_node):
     edges = []
     selected = []
 
+
     while len(visited) < len(G.nodes):
         min_edge = None
 
@@ -104,9 +105,10 @@ def Prim(G, start_node):
             node1, node2, weight = min_edge
             visited.add(node2)
             mst.add_edge(node1, node2, weight=weight)
-            selected.append((node2,weight))
+            selected.append(node2)
         edges = []
-
+      
+    selected = selected[:10]
     return mst, selected
 
 
@@ -126,7 +128,7 @@ print(seleccionados)
 #plt.show()
 
 
-plt.figure(figsize=(10, 10))
+plt.figure(figsize=(8, 8))
 pos = nx.spring_layout(nuevo)  # Layout para la visualización
 edge_labels = {(u, v): d['weight'] for u, v, d in nuevo.edges(data=True)}
 nx.draw(nuevo, pos, with_labels=True, node_size=300, node_color='skyblue', font_size=10, font_color='black')
@@ -134,7 +136,7 @@ nx.draw_networkx_edge_labels(nuevo, pos, edge_labels=edge_labels, font_size=8)
 plt.title("Grafo de Conexiones de Productos con Pesos (Contando Valores Iguales de Atributos)")
 plt.show()
 
-plt.figure(figsize=(10, 10))
+plt.figure(figsize=(8, 8))
 pos = nx.spring_layout(mst)  # Layout para la visualización
 edge_labels = {(u, v): d['weight'] for u, v, d in mst.edges(data=True)}
 nx.draw(mst, pos, with_labels=True, node_size=300, node_color='skyblue', font_size=10, font_color='black')
