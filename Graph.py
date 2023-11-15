@@ -21,6 +21,19 @@ def calculate_weight(node1, node2):
 
     return common_values + 1 
 
+def gen_edge(Graph,productos):
+    n = len(productos)
+    if n > 1:
+        for i in range(n - 1):
+            source = productos[i]
+            target = productos[i + 1]
+            weight = calculate_weight(source, target)
+            Graph.add_edge(source, target, weight=weight)
+        source = productos[-1]
+        target = productos[0]
+        weight = calculate_weight(source, target)
+        Graph.add_edge(source, target, weight=weight)
+
 for idx, row in conexiones_df.iterrows():
     #if idx >= num_filas:
     #    break
@@ -29,24 +42,15 @@ for idx, row in conexiones_df.iterrows():
     
     if pd.notna(list_products_str):  # Verifica si la cadena no es 'nan(invalida)'
         productos = ast.literal_eval(list_products_str)
-        n = len(productos)
-        
-        if n > 1:
-            for i in range(n - 1):
-                source = productos[i]
-                target = productos[i + 1]
-                weight = calculate_weight(source, target)
-                G.add_edge(source, target, weight=weight)
-            source = productos[-1]
-            target = productos[0]
-            weight = calculate_weight(source, target)
-            G.add_edge(source, target, weight=weight)
+        gen_edge(G,productos)
+
+
 
 
 
 #Delimitacion el grafo y generacion del grafo delimitado
 
-start_node = 887
+start_node = 89
 
 
 def new_Graph(first_node):
@@ -117,6 +121,26 @@ mst, seleccionados = Prim(nuevo, start_node)
 
 print(seleccionados)
 
+#Recomendacion por marca
+
+# Obtiene la marca del producto seleccionado
+marca_seleccionada = productos_df.loc[productos_df['id'] == start_node, 'brand'].values[0]
+
+# Filtra los productos con la misma marca que el producto seleccionado
+productos_misma_marca = productos_df[productos_df['brand'] == marca_seleccionada]
+
+# Obtiene las IDs de los productos con la misma marca
+ids_productos_misma_marca = productos_misma_marca['id'].convert_dtypes(int).tolist()
+
+marcas = nx.Graph()
+
+gen_edge(marcas,ids_productos_misma_marca)
+
+
+print(f"Productos con la misma marca ({marca_seleccionada}): {ids_productos_misma_marca}")
+
+
+
 
 # Dibuja el grafo con los pesos en las aristas
 #plt.figure(figsize=(10, 10))
@@ -141,5 +165,13 @@ pos = nx.spring_layout(mst)  # Layout para la visualización
 edge_labels = {(u, v): d['weight'] for u, v, d in mst.edges(data=True)}
 nx.draw(mst, pos, with_labels=True, node_size=300, node_color='skyblue', font_size=10, font_color='black')
 nx.draw_networkx_edge_labels(mst, pos, edge_labels=edge_labels, font_size=8)
-plt.title("Grafo de Conexiones de Productos con Pesos (Contando Valores Iguales de Atributos)")
+plt.title("Grafo de Recomendaciones")
+plt.show()
+
+plt.figure(figsize=(8, 8))
+pos = nx.spring_layout(marcas)  # Layout para la visualización
+edge_labels = {(u, v): d['weight'] for u, v, d in marcas.edges(data=True)}
+nx.draw(marcas, pos, with_labels=True, node_size=300, node_color='skyblue', font_size=10, font_color='black')
+nx.draw_networkx_edge_labels(marcas, pos, edge_labels=edge_labels, font_size=8)
+plt.title("Grafo de Recomendaciones por marca")
 plt.show()
