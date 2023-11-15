@@ -21,7 +21,7 @@ def calculate_weight(node1, node2):
 
     return common_values + 1 
 
-def gen_edge(Graph,productos):
+def gen_edge(Graph,productos): #1 Implementar esta funcion en el github GraphyLi
     n = len(productos)
     if n > 1:
         for i in range(n - 1):
